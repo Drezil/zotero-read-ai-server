@@ -18,15 +18,33 @@ DOWNLOOAD_LIST = queue.Queue()
 BLOCK_SIZE = 8192
 
 
-def serve(host='0.0.0.0', port=3246, verbosity=1):
+class Config:
+    """Configuration object to manage server and client settings."""
+
+    def __init__(self,
+                 host="0.0.0.0",
+                 port=3246,
+                 verbosity=1,
+                 ollama_host="localhost",
+                 ollama_port=11434,
+                 ollama_model="phi3:14b-medium-128k-instruct-f16"):
+        self.host = host
+        self.port = port
+        self.verbosity = verbosity
+        self.ollama_host = ollama_host
+        self.ollama_port = ollama_port
+        self.ollama_model = ollama_model
+
+
+def serve(conf):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((host, port))
+        sock.bind((conf.host, conf.port))
         sock.listen(1)
 
         if verbosity > 0:
-            print('Echoing from http://{}:{}'.format(host, port))
+            print('Echoing from http://{}:{}'.format(conf.host, conf.port))
 
         while True:
             connection, client_address = sock.accept()
@@ -39,7 +57,7 @@ def serve(host='0.0.0.0', port=3246, verbosity=1):
                 else:
                     data = connection.recv(max(0, bytes_left))
 
-                if not 'header' in request:
+                if 'header' not in request:
                     request = build_request(data)
                     header_length = len(request['raw']) - len(request['body'])
                     body_length_read = BLOCK_SIZE - header_length
@@ -110,7 +128,7 @@ def build_request(first_chunk):
     return r
 
 
-def make_summary(data):
+def make_summary(conf, data):
     fname = pathlib.Path(data["path"])
     if pathlib.Path('summaries/' + fname.name + '.txt').exists():
         print(f"{str(fname)[-80:]:>80.80}: summary exists, skipping ...",
@@ -136,9 +154,9 @@ def make_summary(data):
             return
     print(f"{str(fname)[-80:]:>80.80}: waiting for response ...",
           end="\r", flush=True)
-    tagger = Client(host="http://172.28.105.78:11434")
+    tagger = Client(host=f"http://{conf.ollama_host}:{conf.ollama_port}")
     tagged = tagger.chat(
-        model="phi3:14b-medium-128k-instruct-f16",
+        model=conf.ollama_model,
         messages=[{"role": "user",
                    "content": txt},
                   {"role": "system",
@@ -239,7 +257,6 @@ This summary was automagically generated using a good™ prompt on microsofts ph
               end="\r", flush=True)
         i += len(rstring)
         if i > 150:
-            # print("\r\033[2K", end="", flush=True)
             i = 0
         if '\n' in lastline:
             print("")
@@ -248,8 +265,6 @@ This summary was automagically generated using a good™ prompt on microsofts ph
             if "phi3:14b-medium-128k-f16 llm.\n" in lastline.lower():
                 break
             lastline = lastline[lastline.rindex('\n')+1:]
-        # if "---" in ''.join(response).splitlines() or "phi3:14b-medium-128k-f16" in ''.join(repsonse):
-        #     break
 
     response = ''.join(response).strip()
     io.open('summaries/' + fname.name + '.txt',
@@ -257,32 +272,34 @@ This summary was automagically generated using a good™ prompt on microsofts ph
     print('summaries/' + fname.name + '.txt written..')
 
 
-def download_thread():
-    while True:
-        try:
-            next = DOWNLOOAD_LIST.get(True, 5)
-            make_summary(next)
-            # threading.Thread(target=make_summary, args=[next]).start()
-        except queue.Empty:
-            pass
-
-
 if __name__ == '__main__':
     from argparse import ArgumentParser
+    defConfig = Config()
 
     parser = ArgumentParser(
         description="Server that returns any http request made to it")
-    parser.add_argument('-b', '--bind', default='localhost',
+    parser.add_argument('-b', '--bind',
+                        default=defConfig.host,
                         help='host to bind to')
-    parser.add_argument('-p', '--port', default=3246,
-                        type=int, help='port to listen on')
+    parser.add_argument('-p', '--port',
+                        default=defConfig.port,
+                        type=int,
+                        help='port to listen on')
+    parser.add_argument('--ollama-host',
+                        default=defConfig.ollama_host,
+                        help='Host of the Ollama server.')
+    parser.add_argument('--ollama-port',
+                        default=defConfig.ollama_port,
+                        type=int,
+                        help='Port of the Ollama server.')
+    parser.add_argument('--ollama-model',
+                        default=defConfig.ollama_model,
+                        help='Model to use for summaries.')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='print all requests to terminal')
     parser.add_argument('-q', '--quiet', action='store_true',
                         help='silence all output (overrides --verbose)')
     args = parser.parse_args()
-    host = args.bind
-    port = args.port
     verbose = args.verbose
     quiet = args.quiet
 
@@ -291,6 +308,18 @@ if __name__ == '__main__':
         verbosity = 2
     if quiet:
         verbosity = 0
+    conf = Config(args.bind, args.port, verbosity,
+                  ollama_host=args.ollama_host,
+                  ollama_port=args.ollama_port,
+                  ollama_model=args.ollama_model)
+
+    def download_thread():
+        while True:
+            try:
+                next = DOWNLOOAD_LIST.get(True, 5)
+                make_summary(conf, next)
+            except queue.Empty:
+                continue
 
     threading.Thread(target=download_thread).start()
-    serve(host, port, verbosity)
+    serve(conf)
