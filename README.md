@@ -65,18 +65,8 @@ poetry run python ./server.py -- --verbose
 
 ## Dependencies
 
-The following dependencies are required:
-
-- `numpy==1.24.4`
-- `pillow==10.3.0`
-- `requests`
-- `torch>=2.3.0,<2.4.0`
-- `torchvision==0.18.0`
-- `transformers==4.40.2`
-- `flash-attn` (specific wheel provided in the `pyproject.toml`)
-- `ollama==0.3.1`
-- `setuptools>68.0.0`
-- Development: `wheel>=0.43.0`
+Details can be found in
+![pyproject.toml](pyproject.toml)
 
 ---
 
