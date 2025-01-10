@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
 numpy = "==1.24.4"
-pillow = "==10.3.0"
+pillow = "==11.1.0"
 requests = "*"
 setuptools = ">68.0.0"
 torch = ">=2.3.0,<2.4.0"
