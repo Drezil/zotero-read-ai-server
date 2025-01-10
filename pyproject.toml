@@ -13,7 +13,7 @@ requests = "*"
 setuptools = ">68.0.0"
 torch = ">=2.3.0,<2.4.0"
 torchvision = "==0.18.0"
-transformers = "==4.40.2"
+transformers = "==4.48.0"
 flash-attn = {url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.5.8/flash_attn-2.5.8+cu122torch2.3cxx11abiTRUE-cp311-cp311-linux_x86_64.whl", extras = ["--no-build-isolation"]}
 accelerate = "^0.32.1"
 ollama = "^0.3.1"
