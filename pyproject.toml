@@ -20,7 +20,7 @@ ollama = "^0.3.1"
 
 
 [tool.poetry.group.dev.dependencies]
-wheel = "^0.43.0"
+wheel = "^0.45.1"
 
 [build-system]
 requires = ["poetry-core", "setuptools"]
