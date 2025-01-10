@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
-numpy = "==1.24.4"
+numpy = "==1.26.4"
 pillow = "==10.3.0"
 requests = "*"
 setuptools = ">68.0.0"
