@@ -801,19 +801,19 @@ files = [
 
 [[package]]
 name = "ollama"
-version = "0.4.7"
+version = "0.5.4"
 description = "The official Python client for Ollama."
 optional = false
-python-versions = "<4.0,>=3.8"
+python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "ollama-0.4.7-py3-none-any.whl", hash = "sha256:85505663cca67a83707be5fb3aeff0ea72e67846cea5985529d8eca4366564a1"},
-    {file = "ollama-0.4.7.tar.gz", hash = "sha256:891dcbe54f55397d82d289c459de0ea897e103b86a3f1fad0fdb1895922a75ff"},
+    {file = "ollama-0.5.4-py3-none-any.whl", hash = "sha256:6374c9bb4f2a371b3583c09786112ba85b006516745689c172a7e28af4d4d1a2"},
+    {file = "ollama-0.5.4.tar.gz", hash = "sha256:75857505a5d42e5e58114a1b78cc8c24596d8866863359d8a2329946a9b6d6f3"},
 ]
 
 [package.dependencies]
-httpx = ">=0.27,<0.29"
-pydantic = ">=2.9.0,<3.0.0"
+httpx = ">=0.27"
+pydantic = ">=2.9"
 
 [[package]]
 name = "packaging"
@@ -1667,4 +1667,4 @@ test = ["pytest (>=6.0.0)", "setuptools (>=65)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.12"
-content-hash = "b397cd336cc203ae4a55b1f5764f7c91461dfb18ed6f9471aa9103c21b63a9c0"
+content-hash = "f2c1c4a241828fd44f79d10ac3a9aecb59a763724777c66ab911792895187f83"
